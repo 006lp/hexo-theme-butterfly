@@ -12,6 +12,24 @@ function switchNightMode() {
                 }, 2e3);
         });
 
+    const saveToLocal = {
+        set: (key, value, ttl) => {
+            if (!ttl) return
+            const expiry = Date.now() + ttl * 86400000
+            localStorage.setItem(key, JSON.stringify({ value, expiry }))
+        },
+        get: key => {
+            const itemStr = localStorage.getItem(key)
+            if (!itemStr) return undefined
+            const { value, expiry } = JSON.parse(itemStr)
+            if (Date.now() > expiry) {
+                localStorage.removeItem(key)
+                return undefined
+            }
+            return value
+        }
+    }
+
     const nowMode = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
     if (nowMode === 'light') {
         // 先设置太阳月亮透明度
